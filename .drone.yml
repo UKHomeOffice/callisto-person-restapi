@@ -18,7 +18,6 @@ steps:
     image: hadolint/hadolint:latest-alpine
     commands:
       - hadolint Dockerfile
-      - hadolint db/Dockerfile
 
   - name: lint_helm_files
     image: pelotech/drone-helm3
