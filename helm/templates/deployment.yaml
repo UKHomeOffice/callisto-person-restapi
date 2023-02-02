@@ -36,4 +36,3 @@ spec:
           ports:
             - name: http
               containerPort: 9090
-          env: {{ toYaml .Values.env.database | nindent 12 }}
