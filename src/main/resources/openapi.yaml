@@ -1,0 +1,21 @@
+openapi: '3.0.3'
+info:
+  title: Person
+  description: The Person container exposes Person model to clients
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    Person:
+      description: TODO
+      type: object
+      properties:
+        id:
+          description: Assigned by the Person container
+          type: number
+        firstName:
+          description: Person's first name
+          type: string
+        lastName:
+          description: Person's last name
+          type: string

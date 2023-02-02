@@ -1,0 +1,492 @@
+---
+kind: pipeline
+type: kubernetes
+name: lint-files
+
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  event:
+    exclude:
+      - promote
+
+steps:
+  - name: lint_dockerfiles
+    pull: if-not-exists
+    image: hadolint/hadolint:latest-alpine
+    commands:
+      - hadolint Dockerfile
+      - hadolint db/Dockerfile
+
+  - name: lint_helm_files
+    image: pelotech/drone-helm3
+    settings:
+      mode: lint
+      chart: ./helm
+      values_files:
+        - ./helm/values/dev-values.yaml
+        - ./helm/values/test-values.yaml
+        - ./helm/values/prod-values.yaml
+
+
+---
+kind: pipeline
+type: kubernetes
+name: promotion-check
+
+platform:
+  os: linux
+  arch: amd64
+
+trigger:
+  event:
+    - promote
+
+steps:
+  - name: branch-check
+    pull: if-not-exists
+    image: alpine:latest
+    commands:
+      - echo Cannot promote from non 'main' branch
+      - exit 1
+    when:
+      branch:
+        exclude:
+          - main
+
+  - name: environment-check
+    pull: if-not-exists
+    image: alpine:latest
+    commands:
+      - echo Cannot promote to a non prod environment
+      - exit 1
+    when:
+      target:
+        exclude:
+          - production
+
+  - name: build-check
+    pull: if-not-exists
+    image: drone/cli:1.6.2-alpine
+    environment:
+      DRONE_BUILD_PARENT: ${DRONE_BUILD_PARENT}
+      DRONE_SERVER: https://drone-gh.acp.homeoffice.gov.uk
+      DRONE_TOKEN:
+        from_secret: drone_token
+    commands:
+      - chmod +x ./pipeline-scripts/check-build-promotion.sh
+      - ./pipeline-scripts/check-build-promotion.sh
+
+
+---
+kind: pipeline
+type: kubernetes
+name: callisto-person-restapi-build
+
+platform:
+  os: linux
+  arch: amd64
+
+depends_on:
+  - lint-files
+
+trigger:
+  event:
+    exclude:
+      - promote
+
+person_quay_settings: &person_quay_settings
+  pull: if-not-exists
+  image: plugins/docker
+  settings:
+    registry: quay.io
+    repo: quay.io/ukhomeofficedigital/callisto-person-restapi
+    username:
+      from_secret: quay_robot_name
+    password:
+      from_secret: quay_robot_token
+    file: Dockerfile
+
+
+steps:
+  - name: fetch
+    image: alpine/git
+    commands:
+      - "git fetch origin +refs/heads/main:"
+
+  - name: build
+    image: maven:3.8.3-openjdk-17
+    depends_on:
+      - fetch
+    environment:
+      ARTIFACTORY_TOKEN:
+        from_secret: artifactory_token
+    commands:
+      - mvn -s ./person_settings.xml clean verify
+
+  - name: sonar
+    image: maven:3.8.3-openjdk-17
+    depends_on:
+      - build
+    environment:
+      ARTIFACTORY_TOKEN:
+        from_secret: artifactory_token
+      SONAR_HOST:
+        from_secret: sonar_cloud_host
+      SONAR_TOKEN:
+        from_secret: sonar_cloud_token
+    commands:
+      - mvn -s ./person_settings.xml sonar:sonar
+        -Dsonar.host.url=$${SONAR_HOST}
+        -Dsonar.login=$${SONAR_TOKEN}
+        -Dsonar.organization=ukhomeoffice
+        -Dsonar.projectKey=callisto-person-restapi
+        -Dsonar.branch.name=$DRONE_BRANCH
+        -Dsonar.projectName=callisto-person-restapi
+        -Dsonar.qualitygate.wait=true
+    when:
+      event:
+        exclude:
+          - pull_request
+
+  - name: build_tag_push_quay_branch
+    <<: *person_quay_settings
+    depends_on:
+      - build
+    settings:
+      tags:
+        - ${DRONE_COMMIT_SHA}
+        - ${DRONE_SOURCE_BRANCH%%/*}
+    when:
+      event:
+        - pull_request
+
+  - name: build_tag_push_quay
+    <<: *person_quay_settings
+    depends_on:
+      - sonar
+    settings:
+      tags:
+        - latest
+        - ${DRONE_COMMIT_SHA}
+    when:
+      event:
+        - push
+      branch:
+        - main
+
+---
+kind: pipeline
+type: kubernetes
+name: callisto-person-database-schema
+
+platform:
+  os: linux
+  arch: amd64
+
+depends_on:
+  - lint-files
+
+trigger:
+  event:
+    exclude:
+      - promote
+
+database_quay_settings: &database_quay_settings
+  pull: if-not-exists
+  image: plugins/docker
+  settings:
+    registry: quay.io
+    repo: quay.io/ukhomeofficedigital/callisto-person-database
+    username:
+      from_secret: quay_robot_name
+    password:
+      from_secret: quay_robot_token
+    dockerfile: db/Dockerfile
+    context: db
+
+steps:
+  - name: build_tag_push_quay_branch
+    <<: *database_quay_settings
+    settings:
+      tags:
+        - ${DRONE_COMMIT_SHA}
+        - ${DRONE_SOURCE_BRANCH%%/*}
+    when:
+      event: pull_request
+
+  - name: build_tag_push_quay
+    <<: *database_quay_settings
+    settings:
+      tags:
+        - latest
+        - ${DRONE_COMMIT_SHA}
+    when:
+      event:
+        - push
+      branch:
+        - main
+
+---
+kind: pipeline
+type: kubernetes
+name: callisto-person-restapi-branch-deploy
+
+platform:
+  os: linux
+  arch: amd64
+
+depends_on:
+  - callisto-person-restapi-build
+  - callisto-person-database-schema
+
+trigger:
+  event:
+    - pull_request
+
+steps:
+  - name: branch_deploy
+    image: pelotech/drone-helm3
+    settings:
+      namespace: callisto-dev
+      mode: upgrade
+      chart: ./helm
+      values:
+        - image.tag=${DRONE_COMMIT_SHA}
+        - branch=${DRONE_SOURCE_BRANCH%%/*}
+      values_files:
+        - ./helm/values/dev-values.yaml
+      release: callisto-person-restapi-${DRONE_SOURCE_BRANCH%%/*}
+      kube_certificate:
+        from_secret: notprod_kube_api_certificate
+      kube_api_server:
+        from_secret: not_prod_kube_api_url
+      kube_token:
+        from_secret: dev_kube_token
+
+---
+kind: pipeline
+type: kubernetes
+name: callisto-person-restapi-dev-deploy
+
+platform:
+  os: linux
+  arch: amd64
+
+depends_on:
+  - callisto-person-restapi-build
+  - callisto-person-database-schema
+
+trigger:
+  event:
+    include:
+      - push
+    exclude:
+      - promote
+  branch:
+    - main
+
+steps:
+  - name: deploy_to_dev
+    image: pelotech/drone-helm3
+    settings:
+      namespace: callisto-dev
+      mode: upgrade
+      chart: ./helm
+      values:
+        - image.tag=${DRONE_COMMIT_SHA}
+      values_files:
+        - ./helm/values/dev-values.yaml
+      release: callisto-person-restapi
+      kube_certificate:
+        from_secret: notprod_kube_api_certificate
+      kube_api_server:
+        from_secret: not_prod_kube_api_url
+      kube_token:
+        from_secret: dev_kube_token
+
+---
+kind: pipeline
+type: kubernetes
+name: callisto-person-restapi-test-deploy
+
+platform:
+  os: linux
+  arch: amd64
+
+depends_on:
+  - callisto-person-restapi-dev-deploy
+
+trigger:
+  event:
+    - push
+  exclude:
+    - promote
+  branch:
+    - main
+
+steps:
+  - name: deploy_to_test
+    image: pelotech/drone-helm3
+    settings:
+      namespace: callisto-test
+      mode: upgrade
+      chart: ./helm
+      values:
+        - image.tag=${DRONE_COMMIT_SHA}
+      values_files:
+        - ./helm/values/test-values.yaml
+      release: callisto-person-restapi
+      kube_certificate:
+        from_secret: notprod_kube_api_certificate
+      kube_api_server:
+        from_secret: not_prod_kube_api_url
+      kube_token:
+        from_secret: test_kube_token
+
+
+---
+kind: pipeline
+type: kubernetes
+name: callisto-person-restapi-prod-deploy
+
+platform:
+  os: linux
+  arch: amd64
+
+depends_on:
+  - promotion-check
+
+trigger:
+  event:
+    - promote
+  target:
+    - production
+
+steps:
+  - name: deploy_to_prod
+    image: pelotech/drone-helm3
+    settings:
+      namespace: callisto-prod
+      mode: upgrade
+      chart: ./helm
+      values:
+        - image.tag=${DRONE_COMMIT_SHA}
+      values_files:
+        - ./helm/values/prod-values.yaml
+      release: callisto-person-restapi
+      kube_certificate:
+        from_secret: prod_kube_api_certificate
+      kube_api_server:
+        from_secret: prod_kube_api_url
+      kube_token:
+        from_secret: prod_kube_token
+
+---
+kind: pipeline
+type: kubernetes
+name: build notifications
+
+trigger:
+  status:
+    - success
+    - failure
+  exclude:
+    event:
+      - pull_request
+
+depends_on:
+  - callisto-person-restapi-build
+  - callisto-person-restapi-dev-deploy
+  - callisto-person-restapi-test-deploy
+  - callisto-person-restapi-prod-deploy
+
+slack: &slack
+  image: plugins/slack
+  settings:
+    webhook:
+      from_secret: slack_webhook_url
+    channel: callisto-tech-notifications
+    username: Drone
+
+steps:
+  - name: slack
+    <<: *slack
+    settings:
+      template: |
+        {{#success build.status}}
+          <${DRONE_BUILD_LINK}|Build #{{ build.number }}> succeeded! :tada:
+        {{else}}
+          <${DRONE_BUILD_LINK}|Build #{{ build.number }}> failed :broken_heart:
+        {{/success}}
+        Commit: <${DRONE_REPO_LINK}/commit/{{ build.commit }}|{{ truncate build.commit 8 }}> - {{{ trim build.message }}}
+        Repo: {{ repo.name }}
+        Branch: <${DRONE_REPO_LINK}/commits/{{ build.branch }}|{{ build.branch }}>
+        Author: {{ build.author }}
+        <https://sonarcloud.io/dashboard?id=callisto-person-restapi&branch={{ build.branch }}&resolved=false|SonarCloud Analysis Report>
+    when:
+      event:
+        - push
+
+  - name: slack_promotion
+    <<: *slack
+    settings:
+      template: >
+        {{#success build.status}}
+          :rocket: Successful *{{uppercasefirst build.deployTo}}* deployment for *{{repo.name}}* <${DRONE_BUILD_LINK}| build #{{build.number}}>.
+        {{else}}
+          :zombie: Problem *{{uppercasefirst build.deployTo}}* deployment failed for *{{repo.name}}* <${DRONE_BUILD_LINK}| build #{{build.number}}>.
+        {{/success}}
+    when:
+      event:
+        - promote
+
+---
+kind: pipeline
+type: kubernetes
+name: urgent notifications
+
+trigger:
+  status:
+    - failure
+  event:
+    exclude:
+      - pull_request
+
+depends_on:
+  - callisto-person-restapi-build
+  - callisto-person-restapi-dev-deploy
+  - callisto-person-restapi-test-deploy
+  - callisto-person-restapi-prod-deploy
+
+slack: &slack
+  image: plugins/slack
+  settings:
+    webhook:
+      from_secret: slack_urgent_webhook_url
+    channel: callisto-urgent-tech-notifications
+    username: Drone
+
+steps:
+  - name: slack_build_urgent
+    <<: *slack
+    settings:
+      template: |
+        <${DRONE_BUILD_LINK}|Build #{{build.number}}> failed :this-is-fine-fire:
+        Commit: <${DRONE_REPO_LINK}/commit/{{ build.commit }}|{{ truncate build.commit 8 }}> - {{{ trim build.message }}}
+        Repo: {{ repo.name }}
+        Author: {{ build.author }}
+    when:
+      branch:
+        - main
+
+  - name: slack_promote_urgent
+    <<: *slack
+    settings:
+      template: |
+        :alert: Problem *{{uppercasefirst build.deployTo}}* deployment failed for *{{repo.name}}* <${DRONE_BUILD_LINK}| build #{{build.number}}>.
+    when:
+      event:
+        - promote
