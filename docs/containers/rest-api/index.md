@@ -83,7 +83,7 @@ Note that this resource is not exposed directly via the RESTful API. Instead it 
 | property name | description | type | cardinality |
 |--|--|--|--|
 | name | the name of the property as it appears in the schema| String  | 1..1 |
-| value| the value of the property. The schema can be used to determine the value's concrete type| Object| 1..1 |
+| value| the value of the property. The PersonEffectiveDatePropertySet.schema can be used to determine the value's concrete type| Object| 1..1 |
 
 ## Effective dates
 At the point when an effective date passes the property it is associated with will be updated to hold the new value. The Person record in the datastore will be updated with this new version of the Person. This in turn will result in a new event being published for the now updated Person. Note that the logic around effective dates and subsequently updating the Person record must be written to deal with optimistic locking errors
