@@ -1,11 +1,26 @@
 # Metis Adapter container
 
+## METIS
+
+Metis is a suite of applications which include ERP, customer relationship management (CRM) and human capital management (HCM) and is the master for most of the information about an employee that Callisto requires in order to operate.
+
 ## What is it?
+
+The METIS Adaptor is responsible for consuming the information supplied by METIS in the form defined by the interface specification and transforming it into the form required by Callisto which, in simple terms is our storage model.
+
+In time there maybe many types of data handled by the Adapter but, for now this design only deals with the Person Profile data which, at high level contains some of the information that describes an employee in terms of contractual & other terms which impact Callisto's processing of their time. For example, we need to know whether and employee is full time or part-time as this impacts both availablilty and meal break allowance for some staff.
 
 ## Dependencies
 
 ### External
-TODO - Metis
+
+METIS, as described earlier is the master source of this information and will be responsible for supplying the information. Those discussions with METIS have not yet reached a conclusion regarding the form of the transfer but options under consideration include
+
+1. Publish and Subscribe
+2. Secure FTP transfer of an XML or flat file
+
+We are keen that any such interface is asynchronous.
+
 
 ## API
 TODO - SFTP, REST
