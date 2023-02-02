@@ -11,6 +11,10 @@ TODO - Metis
 TODO - SFTP, REST
 
 ## Data model
+
+Callisto will require the following information although this definition is likely to be refined as Callisto is developed. This table is a copy of the information contained in the working document which exists in sharepoint [here](https://homeofficegovuk.sharepoint.com/:w:/s/CALLISTO/EQeNex_Z5JBMgYuWcRuZ9a0B2PJmZ7GNiaTl15GIv22Y2Q?e=h605Ur) and is the master.
+
+
 | Field Name                             | Length         | Description / Rules                                                                                                              |
 | -------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 |                                        |                |                                                                                                                                  |
