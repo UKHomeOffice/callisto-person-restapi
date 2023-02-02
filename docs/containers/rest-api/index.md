@@ -29,10 +29,6 @@ Note that it is not possible to update a property. Note also that a property can
 
 ### Asynchronous (Kafka)
 
-**TODO** 
-- describe effective date changes
-- describe person resource changes and how person monitors effective date properties internally
-
 #### Topics
 
 | topic name | message contents | partition key | trigger(s) |
@@ -42,7 +38,7 @@ Note that it is not possible to update a property. Note also that a property can
 | callisto-person-people | PersonEffectiveDateProperties resource | effectiveDateProperties.personId and effectiveDateProperties.personTenantId | creation of a new PersonEffectiveDateProperty. See [effective dates](#effective-dates) 
 
 #### Consumers
-**TODO** link off to accruals-rest-api/containers/
+**TODO** link off to [accruals-rest-api/docs/containers/](https://github.com/UKHomeOffice/callisto-accruals-restapi/) when the mid-year agreement design has been documented
 
 ## Data models
 
