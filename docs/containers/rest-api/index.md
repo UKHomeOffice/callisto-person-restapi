@@ -1,7 +1,18 @@
-
-
-
 # Person REST API container
+
+- [Person REST API container](#person-rest-api-container)
+  * [What is it?](#what-is-it-)
+  * [Dependencies](#dependencies)
+  * [API](#api)
+    + [Synchronous (REST)](#synchronous--rest-)
+    + [Asynchronous (Kafka)](#asynchronous--kafka-)
+  * [Data models](#data-models)
+    + [Resource model](#resource-model)
+      - [Person](#person)
+      - [PersonEffectiveDateProperty](#personeffectivedateproperty)
+      - [EffectiveDateProperties](#effectivedateproperties)
+      - [Property](#property)
+  * [Effective dates](#effective-dates)
 
 ## What is it?
 - Exposes [Person](#person) resource via RESTful API (POST, PUT, GET and DELETE)
