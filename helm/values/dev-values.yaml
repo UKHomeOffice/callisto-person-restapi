@@ -1,0 +1,11 @@
+environment: dev
+branch: main #overridden for branch deploys
+
+service:
+  port: 3000
+
+replicaCount: 1
+
+image:
+  repo: quay.io/ukhomeofficedigital/
+  tag: latest # this value will be overridden by drone.yml
