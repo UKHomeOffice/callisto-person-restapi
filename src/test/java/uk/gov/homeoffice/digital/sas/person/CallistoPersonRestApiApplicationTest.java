@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-class CallistoPersonRestApiApplicationTests {
+class CallistoPersonRestApiApplicationTest {
 
   @Test
   void run_applicationClassNameAndArgs_springApplicationRunIsInvoked() {
