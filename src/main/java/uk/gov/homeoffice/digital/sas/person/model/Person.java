@@ -5,7 +5,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,4 +35,5 @@ public class Person extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "terms_and_conditions")
   private TermsAndConditions termsAndConditions;
+
 }
