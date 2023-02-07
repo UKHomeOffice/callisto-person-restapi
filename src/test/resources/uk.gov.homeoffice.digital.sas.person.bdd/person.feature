@@ -20,3 +20,6 @@ Feature: Person
       | field      | type    | expectation           |
       | firstName  | String  | isEqualTo("John")     |
       | lastName   | String  | isEqualTo("Smith")    |
+      | version    | Integer | isEqualTo(1)          |
+      | fteValue   | float   | isEqualTo(0.5f)       |
+      | termsAndConditions   | String   | isEqualTo("PRE_MODERNISED")       |

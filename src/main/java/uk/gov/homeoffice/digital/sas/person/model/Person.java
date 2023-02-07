@@ -12,6 +12,8 @@ import uk.gov.homeoffice.digital.sas.jparest.annotation.Resource;
 import uk.gov.homeoffice.digital.sas.jparest.models.BaseEntity;
 import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
 
+import java.math.BigDecimal;
+
 @Resource(path = "persons")
 @Entity(name = "person")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -30,7 +32,7 @@ public class Person extends BaseEntity {
   private String lastName;
 
   @Column(name = "fte_value")
-  private Double fteValue;
+  private BigDecimal fteValue;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "terms_and_conditions")
