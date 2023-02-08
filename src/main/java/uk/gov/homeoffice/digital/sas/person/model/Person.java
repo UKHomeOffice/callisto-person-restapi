@@ -1,6 +1,7 @@
 package uk.gov.homeoffice.digital.sas.person.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -11,7 +12,6 @@ import lombok.Setter;
 import uk.gov.homeoffice.digital.sas.jparest.annotation.Resource;
 import uk.gov.homeoffice.digital.sas.jparest.models.BaseEntity;
 import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
-import java.math.BigDecimal;
 
 @Resource(path = "persons")
 @Entity(name = "person")
