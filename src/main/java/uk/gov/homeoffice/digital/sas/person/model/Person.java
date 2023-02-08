@@ -11,7 +11,6 @@ import lombok.Setter;
 import uk.gov.homeoffice.digital.sas.jparest.annotation.Resource;
 import uk.gov.homeoffice.digital.sas.jparest.models.BaseEntity;
 import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
-
 import java.math.BigDecimal;
 
 @Resource(path = "persons")
