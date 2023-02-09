@@ -39,7 +39,7 @@ public class Person extends BaseEntity {
 
   @Column(name = "fte_value")
   @DecimalMin(value = "0.0", inclusive = false)
-  @Digits(integer = 1, fraction = 1)
+  @Digits(integer = 1, fraction = 4)
   @DecimalMax(value = "1.0")
   private BigDecimal fteValue;
 

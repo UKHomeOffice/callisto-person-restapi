@@ -6,22 +6,20 @@ Feature: Person
     And the valid persons are
       """
       {
-        "tenantId": "b7e813a2-bb28-11ec-8422-0242ac120002",
         "firstName": "John",
         "lastName": "Smith",
         "version": 1,
-        "fteValue": 0.5,
+        "fteValue": 0.5405,
         "termsAndConditions": "PRE_MODERNISED"
       }
       """
     And the invalid persons are
       """
       {
-        "tenantId": "b7e813a2-bb28-11ec-8422-0242ac120002",
         "firstName": "John",
         "lastName": "Smith",
         "version": 1,
-        "fteValue": 0.5,
+        "fteValue": 0.5405,
         "termsAndConditions": "PRE-MODERNISED"
       }
       """
@@ -32,8 +30,25 @@ Feature: Person
       | firstName  | String  | isEqualTo("John")     |
       | lastName   | String  | isEqualTo("Smith")    |
       | version    | Integer | isEqualTo(1)          |
-      | fteValue   | float   | isEqualTo(0.5f)       |
+      | fteValue   | float   | isEqualTo(0.5405f)       |
       | termsAndConditions   | String   | isEqualTo("PRE_MODERNISED")       |
 
     When Trevor creates the invalid persons in the person service
     Then the last response should have a status code of 400
+
+  Scenario: Create Person with invalid FTE value
+
+    Given Trevor is a user
+    And the invalid persons are
+      """
+      {
+        "firstName": "John",
+        "lastName": "Smith",
+        "version": 1,
+        "fteValue": 0.54051,
+        "termsAndConditions": "PRE_MODERNISED"
+      }
+      """
+    When Trevor creates the invalid persons in the person service
+    Then the last response should have a status code of 400
+    Then the last response body should not be empty
