@@ -7,7 +7,7 @@ paths: {}
 components:
   schemas:
     Person:
-      description: TODO
+      description: Person Entity
       type: object
       required:
         - version
@@ -29,5 +29,5 @@ components:
           description: Full Time Equivalent value
           type: number
         termsAndConditions:
-          description: MODERNISED or PRE-MODERNISED
+          description: MODERNISED or PRE_MODERNISED
           type: string
