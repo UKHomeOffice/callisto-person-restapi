@@ -30,7 +30,7 @@ services:
       - callisto
 
   person-database-migrations:
-    # add here later image pulled from Quay
+    # later, add here image pulled from Quay
     build:
       context: ./db
     volumes:
