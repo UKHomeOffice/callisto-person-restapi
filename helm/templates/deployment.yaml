@@ -39,7 +39,7 @@ spec:
           volumeMounts:
             - mountPath: /person-restapi-keystore
               name: keystore-volume
-      {{ - if .Values.env.kafka }}
+      {{- if .Values.env.kafka }}
       initContainers:
         - name: person-create-keystore
           image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/callisto/awscli-java-openssl:latest
