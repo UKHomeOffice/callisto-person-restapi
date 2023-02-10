@@ -9,3 +9,31 @@ replicaCount: 1
 image:
   repo: quay.io/ukhomeofficedigital/
   tag: latest # this value will be overridden by drone.yml
+
+env:
+  kafka:
+    - name: BOOTSTRAP_SERVER
+      valueFrom:
+        secretKeyRef:
+          name: callisto-test-bootstrap
+          key: bootstrap_server1
+    - name: AWS_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: callisto-test-msk
+          key: certificate_authority_access_keys
+    - name: AWS_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: callisto-test-msk
+          key: certificate_authority_secret_keys
+    - name: AWS_CERTIFICATE_AUTHORITY_ARN
+      valueFrom:
+        secretKeyRef:
+          name: callisto-test-msk
+          key: certificate_authority_arn
+    - name: PERSON_KEYSTORE_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: callisto-test-person-keystore
+          key: password
