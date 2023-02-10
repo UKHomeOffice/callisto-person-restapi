@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.0</version>
+        <version>3.0.2</version>
         <relativePath/>
     </parent>
     <groupId>uk.gov.homeoffice.digital.sas</groupId>
@@ -16,8 +16,8 @@
     <properties>
         <java.version>17</java.version>
         <spring.boot.version>${project.parent.version}</spring.boot.version>
-        <springdoc.openapi.ui.version>1.6.5</springdoc.openapi.ui.version>
-        <callisto.jpa.rest.version>0.0.19</callisto.jpa.rest.version>
+        <springdoc.openapi.ui.version>2.0.0</springdoc.openapi.ui.version>
+        <callisto.jpa.rest.version>0.0.19-EAHW-2624-SNAPSHOT</callisto.jpa.rest.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <postgresql.version>42.5.2</postgresql.version>
@@ -71,7 +71,7 @@
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.openapi.ui.version}</version>
         </dependency>
         <dependency>
