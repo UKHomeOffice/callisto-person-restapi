@@ -14,6 +14,8 @@ get_current_acl() {
     local type=$2
     local acls
 
+    echo inside get_current_acl
+
     # Call the kafka-acl script with relevant arguments and grep only the lines
     # form the output with the principals. Then use sed to strip out everything
     # but the required values leaving us with a space delimited list of existing
@@ -38,6 +40,7 @@ set_permissions() {
 
     # get the current ACL for given topic and pattern type
     local current_acl=($(get_current_acl $topic $type))
+    echo set current acl
 
     # Iterate the current ACL to see if each existing permission
     # is still required. Remove any that are not desired
