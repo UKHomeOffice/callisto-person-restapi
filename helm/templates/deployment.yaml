@@ -37,10 +37,10 @@ spec:
             - name: http
               containerPort: 9090
           volumeMounts:
-            - mountPath: /person-restapi-keystore
-              name: keystore-volume
-            - name: person-restapi-script-volume
-              mountPath: /scripts
+            - name: keystore-volume
+              mountPath: /person-restapi-keystore
+#            - name: person-restapi-script-volume
+#              mountPath: /scripts
       initContainers:
         - name: person-create-keystore
           image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/callisto/awscli-java-openssl:latest
