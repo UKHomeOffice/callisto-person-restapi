@@ -1,7 +1,7 @@
 {
-  "firstName": "John",
-  "lastName": "Smith",
-  "version": 1,
+  "firstName": "TestUser1FirstName",
+  "lastName": "TestUser2LastName",
+  "version": 2,
   "fteValue": 0.5405,
-  "termsAndConditions": "PRE_MODERNISED"
+  "termsAndConditions": "MODERNISED"
 }
