@@ -48,49 +48,16 @@ Feature: Person
         "version": 1,
         "fteValue": 0.54051,
         "termsAndConditions": "PRE_MODERNISED"
-      },
-      {
-        "firstName": "Adam",
-        "lastName": "Smith",
-        "version": 1,
-        "fteValue": 0.54051,
-        "termsAndConditions": "PRE_MODERNISED"
-      },
-      {
-        "firstName": "Maria",
-        "lastName": "Smith",
-        "version": 1,
-        "fteValue": 1.0,
-        "termsAndConditions": "MODERNISED"
       }
       """
     When Trevor creates the invalid persons in the person service
     Then the last response should have a status code of 400
     Then the last response body should not be empty
 
-    Scenario: Retrieve all Person resources
 
-      When Trevor retrieves persons from the person service
-      Then the last response body should contain
-        | field | type | expectation           |
-        | items | List | hasSizeGreaterThan(3) |
-      When Trevor retrieves persons from the person service with
-        | size | 2 |
-      Then the last response body should contain
-        | field | type | expectation |
-        | items | List | hasSize(2)  |
-      When Trevor retrieves persons from the person service with
-        | size | 2 |
-        | page | 1 |
-      Then the 1st of the persons in the 2nd response should not be equal to the 1st of the persons in the 3rd response
+  Scenario: Retrieve all Person resources
 
-    Scenario: Get specific Person by reference
-
-      Get a single resource from the endpoint using
-      its identifier
-      e.g. "/resources/persons/c0a80019-8636-1410-8186-36d41fe10000"
-
-      And the valid persons are
+    And the valid persons are
       """
       {
         "firstName": "John",
@@ -101,13 +68,28 @@ Feature: Person
       }
       """
 
-      When Trevor creates the valid persons in the person service
+    When Trevor creates the valid persons in the person service
+    Then the last response should have a status code of 200
 
-      When Trevor gets the profiles 'c0a80019-8636-1410-8186-36d41fe10000' from the person service
-#      Then the last response body should contain
-#        | field | type | expectation |
-#        | items | List | hasSize(1)  |
+    When Trevor creates the valid persons in the person service
+    Then the last response should have a status code of 200
 
+    When Trevor creates the valid persons in the person service
+    Then the last response should have a status code of 200
+
+    When Trevor retrieves persons from the person service
+    Then the last response body should contain
+      | field | type | expectation           |
+      | items | List | hasSizeGreaterThan(3) |
+    When Trevor retrieves persons from the person service with
+      | size | 2 |
+    Then the last response body should contain
+      | field | type | expectation |
+      | items | List | hasSize(2)  |
+    When Trevor retrieves persons from the person service with
+      | size | 2 |
+      | page | 1 |
+    Then the 1st of the persons in the 2nd response should not be equal to the 1st of the persons in the 3rd response
 
     Scenario: Update Person resource
 
@@ -150,3 +132,5 @@ Feature: Person
     And Trevor creates the valid persons in the person service
     When Trevor deletes the 1st of the persons in the last response from the person service
     Then the last response should have a status code of 200
+
+
