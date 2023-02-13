@@ -8,7 +8,7 @@ set -e
 # get_current_acl person prefixed
 # Example: Get permissions for topic person
 # get_current_acl person literal
-get_current_acl() {
+function get_current_acl() {
 
     local topic=$1
     local type=$2
@@ -26,7 +26,7 @@ get_current_acl() {
 
 # Function to set the ACL for the given topic and pattern type
 # to the specified ACL
-set_permissions() {
+function set_permissions() {
 
     local topic=$1
     local type=$2
@@ -148,7 +148,7 @@ function apply_permissions() {
 }
 
 # Ensures a topic exists
-ensure_topic_exists() {
+function ensure_topic_exists() {
     local topic=$1
 
     kafka-topics.sh --bootstrap-server $bootstrap_server --command-config $properties_file \
