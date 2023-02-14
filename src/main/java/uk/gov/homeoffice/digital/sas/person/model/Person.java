@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 import uk.gov.homeoffice.digital.sas.jparest.annotation.Resource;
 import uk.gov.homeoffice.digital.sas.jparest.models.BaseEntity;
 import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
@@ -25,27 +26,24 @@ import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
 @Setter
 public class Person extends BaseEntity {
 
-  @NotNull(message = "Person Version should not be empty")
-  @Column(name = "version")
+  @NotNull(message = "Version should not be empty")
   private Integer version;
 
-  @NotNull(message = "Person First Name should not be empty")
-  @Column(name = "first_name")
+  @NotNull(message = "First Name should not be empty")
+  @Length(max = 50)
   private String firstName;
 
-  @NotNull(message = "Person Last Name should not be empty")
-  @Column(name = "last_name")
+  @NotNull(message = "Last Name should not be empty")
+  @Length(max = 50)
   private String lastName;
 
-  @Column(name = "fte_value")
   @DecimalMin(value = "0.0", inclusive = false)
   @Digits(integer = 1, fraction = 4)
   @DecimalMax(value = "1.0")
   private BigDecimal fteValue;
 
-  @NotNull(message = "Person Terms and Condition should not be empty")
+  @NotNull(message = "Person Terms and Conditions should not be empty")
   @Enumerated(EnumType.STRING)
-  @Column(name = "terms_and_conditions")
   private TermsAndConditions termsAndConditions;
 
 }
