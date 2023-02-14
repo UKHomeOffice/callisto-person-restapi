@@ -16,6 +16,9 @@ components:
         - fteValue
         - termsAndConditions
       properties:
+        id:
+          description: Assigned by the Person container
+          type: number
         version:
           description: User entity version
           type: integer

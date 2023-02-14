@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS person.person (
     last_name VARCHAR(50) NOT NULL,
     fte_value NUMERIC (5,4) NOT NULL,
     terms_and_conditions TEXT CHECK (terms_and_conditions IN ('MODERNISED', 'PRE_MODERNISED'))
-    );
+);
