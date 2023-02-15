@@ -37,3 +37,5 @@ env:
         secretKeyRef:
           name: callisto-prod-person-keystore
           key: password
+    - name: PERSON_TOPIC
+      value: callisto-person-people

@@ -1,0 +1,4 @@
+# Person prefix permissions
+--topic person --resource-pattern-type prefixed
+User:person-restapi-producer     Write       Allow
+User:person-restapi-producer     Describe    Allow
