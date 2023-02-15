@@ -1,0 +1,4 @@
+security.protocol=SSL
+ssl.keystore.location=/person-restapi-keystore/person-restapi.keystore.jks
+ssl.keystore.password=#
+ssl.key.password=#

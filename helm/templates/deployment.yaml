@@ -37,8 +37,8 @@ spec:
             - name: http
               containerPort: 9090
           volumeMounts:
-            - mountPath: /person-restapi-keystore
-              name: keystore-volume
+            - name: keystore-volume
+              mountPath: /person-restapi-keystore
       initContainers:
         - name: person-database
           image: {{ .Values.image.repo }}callisto-person-database:{{ .Values.image.tag }}
@@ -61,6 +61,17 @@ spec:
             - name: person-restapi-script-volume
               mountPath: /scripts/create-keystore.sh
               subPath: create-keystore.sh
+            - name: keystore-volume
+              mountPath: /person-restapi-keystore
+        - name: person-set-up-topic
+          image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/callisto/kafka:latest
+          imagePullPolicy: Always
+          env: {{ toYaml .Values.env.kafka | nindent 12 }}
+          command: [ "/bin/bash" ]
+          args: [ "/scripts/set-up-topic.sh", "$(BOOTSTRAP_SERVER)", "$(PERSON_KEYSTORE_PASSWORD)", "$(PERSON_TOPIC)", "person-properties" ]
+          volumeMounts:
+            - name: person-restapi-script-volume
+              mountPath: /scripts
             - name: keystore-volume
               mountPath: /person-restapi-keystore
       volumes:
