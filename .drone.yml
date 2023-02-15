@@ -227,6 +227,7 @@ steps:
         - push
       branch:
         - main
+        - eahw-2630/pipeline-for-person-database-image
 
 ---
 kind: pipeline
@@ -239,6 +240,7 @@ platform:
 
 depends_on:
   - callisto-person-restapi-build
+  - callisto-person-database-schema
 
 trigger:
   event:
@@ -275,6 +277,7 @@ platform:
 
 depends_on:
   - callisto-person-restapi-build
+  - callisto-person-database-schema
 
 trigger:
   event:
