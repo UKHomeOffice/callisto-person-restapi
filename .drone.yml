@@ -227,7 +227,6 @@ steps:
         - push
       branch:
         - main
-        - eahw-2630/pipeline-for-person-database-image
 
 ---
 kind: pipeline
