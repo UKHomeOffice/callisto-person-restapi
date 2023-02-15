@@ -7,15 +7,30 @@ paths: {}
 components:
   schemas:
     Person:
-      description: TODO
+      description: Person Entity
       type: object
+      required:
+        - version
+        - firstName
+        - lastName
+        - fteValue
+        - termsAndConditions
       properties:
         id:
           description: Assigned by the Person container
           type: number
+        version:
+          description: User entity version
+          type: integer
         firstName:
           description: Person's first name
           type: string
         lastName:
           description: Person's last name
+          type: string
+        fteValue:
+          description: Full Time Equivalent value
+          type: number
+        termsAndConditions:
+          description: MODERNISED or PRE_MODERNISED
           type: string
