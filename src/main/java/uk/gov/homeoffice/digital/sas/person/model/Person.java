@@ -3,6 +3,7 @@ package uk.gov.homeoffice.digital.sas.person.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.DecimalMax;
@@ -17,10 +18,12 @@ import org.hibernate.validator.constraints.Length;
 import uk.gov.homeoffice.digital.sas.jparest.annotation.Resource;
 import uk.gov.homeoffice.digital.sas.jparest.models.BaseEntity;
 import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
+import uk.gov.homeoffice.digital.sas.person.listeners.PersonKafkaEntityListener;
 
 @Resource(path = "persons")
 @Entity(name = "person")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@EntityListeners(PersonKafkaEntityListener.class)
 @NoArgsConstructor
 @Getter
 @Setter
