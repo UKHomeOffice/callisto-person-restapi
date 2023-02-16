@@ -30,7 +30,7 @@ services:
       - callisto
 
   person-database-migrations:
-    image: "quay.io/ukhomeofficedigital/callisto-person-database:latest"
+    image: "liquibase/liquibase:4.15.0"
     volumes:
       - ./db/changelog:/liquibase/changelog
       - ./db/sql:/liquibase/sql
