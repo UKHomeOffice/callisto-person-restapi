@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <spring.boot.version>${project.parent.version}</spring.boot.version>
         <springdoc.openapi.ui.version>2.0.0</springdoc.openapi.ui.version>
-        <callisto.jpa.rest.version>0.1.1</callisto.jpa.rest.version>
+        <callisto.jpa.rest.version>0.1.1-EAHW-2576-SNAPSHOT</callisto.jpa.rest.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <postgresql.version>42.5.2</postgresql.version>

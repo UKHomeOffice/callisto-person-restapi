@@ -1,21 +1,21 @@
 package uk.gov.homeoffice.digital.sas.person.listeners;
 
 import jakarta.persistence.PostPersist;
-import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import uk.gov.homeoffice.digital.sas.person.model.Person;
 import uk.gov.homeoffice.digital.sas.kafka.producer.KafkaProducerService;
-import uk.gov.homeoffice.digital.sas.kafka.listener.KafkaEntityListener;
+import uk.gov.homeoffice.digital.sas.person.model.Person;
 
 @Component
 public class PersonKafkaEntityListener extends KafkaEntityListener<Person> {
 
+  private final KafkaProducerService<Person> kafkaProducerService;
 
-  @Autowired
   public PersonKafkaEntityListener(KafkaProducerService<Person> kafkaProducerService) {
-    super(kafkaProducerService);
+    this.kafkaProducerService = kafkaProducerService;
+  }
+
+  public PersonKafkaEntityListener() {
+
   }
 
   @Override
@@ -26,29 +26,6 @@ public class PersonKafkaEntityListener extends KafkaEntityListener<Person> {
   @PostPersist
   void sendMessageOnCreate(Person resource) {
     System.out.println("HELLOOOOOOO");
-//    if (isLocalHost()) {
-//      super.sendKafkaMessageOnCreate(resource);
-//    }
+    super.sendKafkaMessageOnCreate(resource);
   }
-//
-//  @PostUpdate
-//  void sendMessageOnUpdate(Person resource) {
-//    if (isLocalHost()) {
-//      super.sendKafkaMessageOnUpdate(resource);
-//    }
-//  }
-//
-//  @PostRemove
-//  void sendMessageOnDelete(Person resource) {
-//    if (isLocalHost()) {
-//      super.sendKafkaMessageOnDelete(resource);
-//    }
-//  }
-
-
-//  // temporary check to prevent Kafka in dev environment
-//  private boolean isLocalHost() {
-//    return Arrays.stream(this.environment.getActiveProfiles()).toList()
-//        .contains("localhost");
-//  }
 }
