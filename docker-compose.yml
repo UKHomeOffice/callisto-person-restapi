@@ -30,9 +30,7 @@ services:
       - callisto
 
   person-database-migrations:
-    # later, add here image pulled from Quay
-    build:
-      context: ./db
+    image: "liquibase/liquibase:4.15.0"
     volumes:
       - ./db/changelog:/liquibase/changelog
       - ./db/sql:/liquibase/sql
