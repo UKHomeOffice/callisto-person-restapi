@@ -41,7 +41,7 @@ spec:
               mountPath: /person-restapi-keystore
       initContainers:
         - name: person-schema-creation
-          image: postgres:12
+          image: postgres:13.1
           env: {{ toYaml .Values.env.database | nindent 12 }}
           command:
             - "sh"
