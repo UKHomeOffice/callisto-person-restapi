@@ -244,6 +244,7 @@ depends_on:
 trigger:
   event:
     - pull_request
+    - push
 
 steps:
   - name: branch_deploy
