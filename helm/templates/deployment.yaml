@@ -41,14 +41,23 @@ spec:
               mountPath: /person-restapi-keystore
       initContainers:
         - name: person-schema-creation
-          image: postgres:13.1
+          image: postgres:12
           env: {{ toYaml .Values.env.database | nindent 12 }}
           command:
             - "sh"
             - "-c"
-            #- psql postgresql://$DATABASE_USERNAME:$DATABASE_PASSWORD@$DATABASE_ENDPOINT/$DATABASE_NAME -c "CREATE SCHEMA IF NOT EXISTS person;"
-            - "ls -la"
-
+            - "psql postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_ENDPOINT)/$(DATABASE_NAME) -c \"CREATE SCHEMA IF NOT EXISTS person;\""
+        - name: person-database
+          image: { { .Values.image.repo } }callisto-person-database:{{ .Values.image.tag }}
+          imagePullPolicy: Always
+          env: { { toYaml .Values.env.database | nindent 12 } }
+          args:
+            - "--url=jdbc:postgresql://$(DATABASE_ENDPOINT):$(DATABASE_PORT)/$(DATABASE_NAME)"
+            - "--username=$(DATABASE_USERNAME)"
+            - "--password=$(DATABASE_PASSWORD)"
+            - "--changeLogFile=changelog/db.changelog-main.yml"
+            - "--liquibaseSchemaName=person"
+            - "update"
         - name: person-create-keystore
           image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/callisto/awscli-java-openssl:latest
           imagePullPolicy: Always
