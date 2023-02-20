@@ -42,7 +42,7 @@ spec:
       initContainers:
         - name: person-schema-creation
           image: postgres:13.1
-          env: { { toYaml .Values.env.database | nindent 12 } }
+          env: {{ toYaml .Values.env.database | nindent 12 }}
           command:
             - sh
             - -c
@@ -54,7 +54,7 @@ spec:
           args:
             - "--url=jdbc:postgresql://$(DATABASE_ENDPOINT):$(DATABASE_PORT)/$(DATABASE_NAME)"
             - "--username=$(DATABASE_USERNAME)"
-            - "--password=$(PGPASSWORD)"
+            - "--password=$($DATABASE_PASSWORD)"
             - "--changeLogFile=changelog/db.changelog-main.yml"
             - "--liquibaseSchemaName=person"
             - "update"
