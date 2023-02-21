@@ -47,7 +47,6 @@ spec:
             - "sh"
             - "-c"
             - "psql postgresql://$(DATABASE_USERNAME):$(DATABASE_PASSWORD)@$(DATABASE_ENDPOINT)/$(DATABASE_NAME) -c 'CREATE SCHEMA IF NOT EXISTS person;'"
-            - "ls"
         - name: person-database-migrations
           image: {{ .Values.image.repo }}callisto-person-database:{{ .Values.image.tag }}
           imagePullPolicy: Always
