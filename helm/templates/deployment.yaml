@@ -40,7 +40,7 @@ spec:
             - name: keystore-volume
               mountPath: /person-restapi-keystore
       initContainers:
-        - name: person-database
+        - name: person-database-migrations
           image: {{ .Values.image.repo }}callisto-person-database:{{ .Values.image.tag }}
           imagePullPolicy: Always
           env: {{ toYaml .Values.env.database | nindent 12 }}
