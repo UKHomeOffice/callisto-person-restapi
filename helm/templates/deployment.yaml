@@ -39,6 +39,7 @@ spec:
           volumeMounts:
             - name: keystore-volume
               mountPath: /person-restapi-keystore
+          env: {{ toYaml .Values.env.database | nindent 12 }}
       initContainers:
         - name: person-schema-creation
           image: quay.io/ukhomeofficedigital/postgres-client:latest
