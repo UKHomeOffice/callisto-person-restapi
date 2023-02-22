@@ -42,7 +42,7 @@ spec:
           env: {{ toYaml .Values.env.database | nindent 12 }}
       initContainers:
         - name: person-schema-creation
-          image: postgres:alpine
+          image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/callisto/postgres:latest
           env: {{ toYaml .Values.env.database | nindent 12 }}
           command:
             - "sh"
