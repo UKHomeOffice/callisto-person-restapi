@@ -72,7 +72,7 @@ spec:
             - name: keystore-volume
               mountPath: /person-restapi-keystore
         - name: person-set-up-topic
-          image: postgres:alpine
+          image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/callisto/kafka:latest
           imagePullPolicy: Always
           env: {{ toYaml .Values.env.kafka | nindent 12 }}
           command: [ "/bin/bash" ]
