@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,7 +30,6 @@ import uk.gov.homeoffice.digital.sas.person.listeners.PersonKafkaEntityListener;
 @Builder
 @Getter
 @Setter
-@EqualsAndHashCode
 public class Person extends BaseEntity {
 
   @NotNull(message = "Version should not be empty")

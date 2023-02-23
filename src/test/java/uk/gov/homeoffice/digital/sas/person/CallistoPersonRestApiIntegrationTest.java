@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import java.io.UnsupportedEncodingException;
@@ -105,11 +105,11 @@ class CallistoPersonRestApiIntegrationTest {
         .andReturn();
 
     setPersonIdAndTenantId(result);
-    String payload = getPayloadFromConsumer();
 
+    String payload = getPayloadFromConsumer();
     var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.CREATE);
 
-    assertThat(objectMapper.readTree(payload)).isEqualTo(objectMapper.readTree(objectMapper.writeValueAsString(expectedMessage)));
+    assertEqualsEventMessage(payload, expectedMessage);
   }
 
   @Test
@@ -130,11 +130,9 @@ class CallistoPersonRestApiIntegrationTest {
     updatePerson(person).andExpect(status().isOk());
 
     String payload = getPayloadFromConsumer();
-
     var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.UPDATE);
-    KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
 
-    assertThat(actualMessage).isEqualTo(expectedMessage);
+    assertEqualsEventMessage(payload, expectedMessage);
   }
 
   @Test
@@ -153,11 +151,9 @@ class CallistoPersonRestApiIntegrationTest {
         .andExpect(status().isOk());
 
     String payload = getPayloadFromConsumer();
-
     var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.DELETE);
-    KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
 
-    assertThat(actualMessage).isEqualTo(expectedMessage);
+    assertEqualsEventMessage(payload, expectedMessage);
   }
 
   private ResultActions postPerson(Person person) throws Exception {
@@ -182,5 +178,10 @@ class CallistoPersonRestApiIntegrationTest {
     boolean messageConsumed = kafkaConsumer.getLatch().await(CONSUMER_TIMEOUT, TimeUnit.SECONDS);
     assertThat(messageConsumed).isTrue();
     return kafkaConsumer.getPayload();
+  }
+
+  private void assertEqualsEventMessage(String actual, KafkaEventMessage expected) throws JsonProcessingException {
+    assertThat(objectMapper.readTree(actual))
+        .isEqualTo(objectMapper.readTree(objectMapper.writeValueAsString(expected)));
   }
 }
