@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -103,19 +104,12 @@ class CallistoPersonRestApiIntegrationTest {
         .andExpect(jsonPath("$.items", not(empty())))
         .andReturn();
 
-    String personId = JsonPath.read(result.getResponse().getContentAsString(), "$.items[0].id");
-    person.setId(UUID.fromString(personId));
-    person.setTenantId(UUID.fromString(TENANT_ID));
-
-    // WHEN reading from the topic
-    boolean messageConsumed = kafkaConsumer.getLatch().await(CONSUMER_TIMEOUT, TimeUnit.SECONDS);
-    assertThat(messageConsumed).isTrue();
-    String payload = kafkaConsumer.getPayload();
+    setPersonIdAndTenantId(result);
+    String payload = getPayloadFromConsumer();
 
     var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.CREATE);
     KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
 
-    // THEN Create message is there
     assertThat(actualMessage).isEqualTo(expectedMessage);
   }
 
@@ -129,19 +123,14 @@ class CallistoPersonRestApiIntegrationTest {
         .andExpect(jsonPath("$.items", not(empty())))
         .andReturn();
 
-    String personId = JsonPath.read(result.getResponse().getContentAsString(), "$.items[0].id");
-    person.setId(UUID.fromString(personId));
-    person.setTenantId(UUID.fromString(TENANT_ID));
+    setPersonIdAndTenantId(result);
 
     person.setFteValue(new BigDecimal("0.5000"));
     person.setVersion(2);
 
-    updatePerson(person)
-        .andExpect(status().isOk());
+    updatePerson(person).andExpect(status().isOk());
 
-    boolean messageConsumed = kafkaConsumer.getLatch().await(CONSUMER_TIMEOUT, TimeUnit.SECONDS);
-    assertThat(messageConsumed).isTrue();
-    String payload = kafkaConsumer.getPayload();
+    String payload = getPayloadFromConsumer();
 
     var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.UPDATE);
     KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
@@ -159,19 +148,14 @@ class CallistoPersonRestApiIntegrationTest {
         .andExpect(jsonPath("$.items", not(empty())))
         .andReturn();
 
-    String personId = JsonPath.read(result.getResponse().getContentAsString(), "$.items[0].id");
-    person.setId(UUID.fromString(personId));
-    person.setTenantId(UUID.fromString(TENANT_ID));
+    setPersonIdAndTenantId(result);
 
-    mvc.perform(delete(PERSON_URL + "/" + personId + TENANT_ID_PARAM))
+    mvc.perform(delete(PERSON_URL + "/" + person.getId() + TENANT_ID_PARAM))
         .andExpect(status().isOk());
 
-    boolean messageConsumed = kafkaConsumer.getLatch().await(CONSUMER_TIMEOUT, TimeUnit.SECONDS);
-    assertThat(messageConsumed).isTrue();
-    String payload = kafkaConsumer.getPayload();
+    String payload = getPayloadFromConsumer();
 
-    KafkaEventMessage<Person> expectedMessage =
-        new KafkaEventMessage<>(version, Person.class, person, KafkaAction.DELETE);
+    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.DELETE);
     KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
 
     assertThat(actualMessage).isEqualTo(expectedMessage);
@@ -187,5 +171,17 @@ class CallistoPersonRestApiIntegrationTest {
     return mvc.perform(put(PERSON_URL + "/" + person.getId() + TENANT_ID_PARAM)
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(person)));
+  }
+
+  private void setPersonIdAndTenantId(MvcResult result) throws UnsupportedEncodingException {
+    String personId = JsonPath.read(result.getResponse().getContentAsString(), "$.items[0].id");
+    person.setId(UUID.fromString(personId));
+    person.setTenantId(UUID.fromString(TENANT_ID));
+  }
+
+  private String getPayloadFromConsumer() throws InterruptedException {
+    boolean messageConsumed = kafkaConsumer.getLatch().await(CONSUMER_TIMEOUT, TimeUnit.SECONDS);
+    assertThat(messageConsumed).isTrue();
+    return kafkaConsumer.getPayload();
   }
 }
