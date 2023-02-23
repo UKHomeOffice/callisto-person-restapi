@@ -31,7 +31,7 @@ import uk.gov.homeoffice.digital.sas.person.listeners.PersonKafkaEntityListener;
 @Builder
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public class Person extends BaseEntity {
 
   @NotNull(message = "Version should not be empty")

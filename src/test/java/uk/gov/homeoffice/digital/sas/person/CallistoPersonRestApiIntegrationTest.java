@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -97,27 +98,55 @@ class CallistoPersonRestApiIntegrationTest {
   @Test
   void shouldSendCreateMessageToPersonTopicWhenPersonIsCreated() throws Exception {
 
-    postPerson(person)
+    MvcResult result = postPerson(person)
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.items", not(empty())));
+        .andExpect(jsonPath("$.items", not(empty())))
+        .andReturn();
+
+    String personId = JsonPath.read(result.getResponse().getContentAsString(), "$.items[0].id");
+    person.setId(UUID.fromString(personId));
+    person.setTenantId(UUID.fromString(TENANT_ID));
 
     // WHEN reading from the topic
     boolean messageConsumed = kafkaConsumer.getLatch().await(CONSUMER_TIMEOUT, TimeUnit.SECONDS);
     assertThat(messageConsumed).isTrue();
     String payload = kafkaConsumer.getPayload();
 
-    KafkaEventMessage<Person> expectedMessage =
-        new KafkaEventMessage<>(version, Person.class, person, KafkaAction.CREATE);
+    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.CREATE);
     KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
 
     // THEN Create message is there
     assertThat(actualMessage).isEqualTo(expectedMessage);
   }
 
-  private ResultActions postPerson(Person person) throws Exception {
-    return mvc.perform(post(PERSON_URL + TENANT_ID_PARAM)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(person)));
+  @Test
+  void shouldSendUpdateMessageToPersonTopicWhenPersonIsUpdated() throws Exception {
+
+    kafkaConsumer.setExpectedNumberOfMessages(2);
+
+    MvcResult result = postPerson(person)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items", not(empty())))
+        .andReturn();
+
+    String personId = JsonPath.read(result.getResponse().getContentAsString(), "$.items[0].id");
+    person.setId(UUID.fromString(personId));
+    person.setTenantId(UUID.fromString(TENANT_ID));
+
+    person.setFteValue(new BigDecimal("0.5000"));
+    person.setVersion(2);
+
+    updatePerson(person)
+        .andExpect(status().isOk());
+
+    boolean messageConsumed = kafkaConsumer.getLatch().await(CONSUMER_TIMEOUT, TimeUnit.SECONDS);
+    assertThat(messageConsumed).isTrue();
+    String payload = kafkaConsumer.getPayload();
+
+    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.UPDATE);
+    KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
+
+    assertThat(actualMessage).isEqualTo(expectedMessage);
   }
 
   @Test
@@ -131,20 +160,32 @@ class CallistoPersonRestApiIntegrationTest {
         .andReturn();
 
     String personId = JsonPath.read(result.getResponse().getContentAsString(), "$.items[0].id");
+    person.setId(UUID.fromString(personId));
+    person.setTenantId(UUID.fromString(TENANT_ID));
 
     mvc.perform(delete(PERSON_URL + "/" + personId + TENANT_ID_PARAM))
         .andExpect(status().isOk());
 
-    person.setId(UUID.fromString(personId));
-    person.setTenantId(UUID.fromString(TENANT_ID));
-    KafkaEventMessage<Person> expectedMessage =
-        new KafkaEventMessage<>(version, Person.class, person, KafkaAction.DELETE);
-
     boolean messageConsumed = kafkaConsumer.getLatch().await(CONSUMER_TIMEOUT, TimeUnit.SECONDS);
     assertThat(messageConsumed).isTrue();
-
     String payload = kafkaConsumer.getPayload();
+
+    KafkaEventMessage<Person> expectedMessage =
+        new KafkaEventMessage<>(version, Person.class, person, KafkaAction.DELETE);
     KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
+
     assertThat(actualMessage).isEqualTo(expectedMessage);
+  }
+
+  private ResultActions postPerson(Person person) throws Exception {
+    return mvc.perform(post(PERSON_URL + TENANT_ID_PARAM)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(person)));
+  }
+
+  private ResultActions updatePerson(Person person) throws Exception {
+    return mvc.perform(put(PERSON_URL + "/" + person.getId() + TENANT_ID_PARAM)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(person)));
   }
 }
