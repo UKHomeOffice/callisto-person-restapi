@@ -108,9 +108,8 @@ class CallistoPersonRestApiIntegrationTest {
     String payload = getPayloadFromConsumer();
 
     var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.CREATE);
-    KafkaEventMessage<Person> actualMessage = objectMapper.readValue(payload, new TypeReference<>(){});
 
-    assertThat(actualMessage).isEqualTo(expectedMessage);
+    assertThat(objectMapper.readTree(payload)).isEqualTo(objectMapper.readTree(objectMapper.writeValueAsString(expectedMessage)));
   }
 
   @Test
