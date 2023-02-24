@@ -17,7 +17,7 @@ public class PersonKafkaEntityListener extends KafkaEntityListener<Person> {
 
   @Override
   public String resolveMessageKey(Person person) {
-    return person.getTenantId() + ": " + person.getId();
+    return person.getTenantId() + ":" + person.getId();
   }
 
   @PostPersist

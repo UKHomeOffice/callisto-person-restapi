@@ -43,7 +43,7 @@ class PersonKafkaEntityListenerTest {
 
   @Test
   void resolveMessageKey_personEntity_tenantIdAndOwnerIdReturnedInMessageKey() {
-    String expectedMessageKey = TENANT_ID + ": " + PERSON_ID;
+    String expectedMessageKey = TENANT_ID + ":" + PERSON_ID;
     String actualMessageKey = personKafkaEntityListener.resolveMessageKey(person);
 
     assertThat(actualMessageKey).isEqualTo(expectedMessageKey);
