@@ -48,7 +48,7 @@ spec:
           command:
             - "sh"
             - "-c"
-            - "export PGPASSWORD=$(DATABASE_PASSWORD); psql postgresql://$(DATABASE_ENDPOINT):$(DATABASE_PORT)/$(DATABASE_NAME) -U $(DATABASE_USERNAME) -c 'CREATE SCHEMA IF NOT EXISTS person;'"
+            - "export PGPASSWORD=$DATABASE_PASSWORD; psql postgresql://$DATABASE_ENDPOINT:$DATABASE_PORT/$DATABASE_NAME -U $DATABASE_USERNAME -c 'CREATE SCHEMA IF NOT EXISTS person;'"
         - name: person-database-migrations
           image: {{ .Values.image.repo }}callisto-person-database:{{ .Values.image.tag }}
           imagePullPolicy: Always
