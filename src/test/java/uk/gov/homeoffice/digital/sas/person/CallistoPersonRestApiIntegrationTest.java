@@ -13,9 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
 import com.jayway.jsonpath.JsonPath;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +59,8 @@ class CallistoPersonRestApiIntegrationTest {
   private static final String PERSON_URL = "/resources/persons";
   private Person person;
 
+  private final Faker faker = new Faker();
+
   @Value("${projectVersion}")
   private String version;
 
@@ -72,11 +76,11 @@ class CallistoPersonRestApiIntegrationTest {
   @BeforeEach
   void setup() {
     person = Person.builder()
-        .firstName("John")
-        .lastName("Smith")
-        .version(1)
-        .fteValue(new BigDecimal("1.0000"))
-        .termsAndConditions(TermsAndConditions.MODERNISED)
+        .firstName(faker.name().firstName())
+        .lastName(faker.name().lastName())
+        .version(faker.number().randomDigit())
+        .fteValue(randomFteValue())
+        .termsAndConditions(randomTermsAndConditions())
         .build();
   }
 
@@ -178,5 +182,13 @@ class CallistoPersonRestApiIntegrationTest {
   private void assertEqualsEventMessage(String actual, KafkaEventMessage<Person> expected) throws JsonProcessingException {
     assertThat(objectMapper.readTree(actual))
         .isEqualTo(objectMapper.readTree(objectMapper.writeValueAsString(expected)));
+  }
+
+  private BigDecimal randomFteValue() {
+    return new BigDecimal(String.valueOf(faker.number().randomDouble(4, 0, 1)));
+  }
+
+  private TermsAndConditions randomTermsAndConditions(){
+    return TermsAndConditions.values()[new Random().nextInt(TermsAndConditions.values().length)];
   }
 }
