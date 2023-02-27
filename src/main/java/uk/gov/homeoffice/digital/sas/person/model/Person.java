@@ -1,8 +1,8 @@
 package uk.gov.homeoffice.digital.sas.person.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.DecimalMax;
@@ -10,6 +10,8 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,11 +19,15 @@ import org.hibernate.validator.constraints.Length;
 import uk.gov.homeoffice.digital.sas.jparest.annotation.Resource;
 import uk.gov.homeoffice.digital.sas.jparest.models.BaseEntity;
 import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
+import uk.gov.homeoffice.digital.sas.person.listeners.PersonKafkaEntityListener;
 
 @Resource(path = "persons")
 @Entity(name = "person")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@EntityListeners(PersonKafkaEntityListener.class)
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Getter
 @Setter
 public class Person extends BaseEntity {
