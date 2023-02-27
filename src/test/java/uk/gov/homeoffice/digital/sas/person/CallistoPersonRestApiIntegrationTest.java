@@ -20,7 +20,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,8 +29,6 @@ import org.springframework.http.MediaType;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -41,11 +38,9 @@ import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
 import uk.gov.homeoffice.digital.sas.person.model.Person;
 import uk.gov.homeoffice.digital.sas.person.testutils.KafkaConsumer;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application.properties")
 @ComponentScan("uk.gov.homeoffice.digital.sas.person")
 @EmbeddedKafka(
     partitions = 1,
@@ -180,7 +175,7 @@ class CallistoPersonRestApiIntegrationTest {
     return kafkaConsumer.getPayload();
   }
 
-  private void assertEqualsEventMessage(String actual, KafkaEventMessage expected) throws JsonProcessingException {
+  private void assertEqualsEventMessage(String actual, KafkaEventMessage<Person> expected) throws JsonProcessingException {
     assertThat(objectMapper.readTree(actual))
         .isEqualTo(objectMapper.readTree(objectMapper.writeValueAsString(expected)));
   }
