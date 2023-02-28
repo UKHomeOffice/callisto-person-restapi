@@ -18,19 +18,20 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import uk.gov.homeoffice.digital.sas.jparest.annotation.Resource;
 import uk.gov.homeoffice.digital.sas.jparest.models.BaseEntity;
+import uk.gov.homeoffice.digital.sas.kafka.listener.KafkaEntityListener;
+import uk.gov.homeoffice.digital.sas.kafka.message.Messageable;
 import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
-import uk.gov.homeoffice.digital.sas.person.listeners.PersonKafkaEntityListener;
 
 @Resource(path = "persons")
 @Entity(name = "person")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-@EntityListeners(PersonKafkaEntityListener.class)
+@EntityListeners(KafkaEntityListener.class)
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Getter
 @Setter
-public class Person extends BaseEntity {
+public class Person extends BaseEntity implements Messageable {
 
   @NotNull(message = "Version should not be empty")
   private Integer version;
@@ -51,5 +52,10 @@ public class Person extends BaseEntity {
   @NotNull(message = "Person Terms and Conditions should not be empty")
   @Enumerated(EnumType.STRING)
   private TermsAndConditions termsAndConditions;
+
+  @Override
+  public String resolveMessageKey() {
+    return getTenantId() + ":" + getId();
+  }
 
 }
