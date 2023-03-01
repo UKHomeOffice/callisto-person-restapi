@@ -31,6 +31,7 @@ import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
 @Builder
 @Getter
 @Setter
+@SuppressWarnings("squid:S2160") //Suppressed overriding equals until eahw-2652
 public class Person extends BaseEntity implements Messageable {
 
   @NotNull(message = "Version should not be empty")
@@ -57,5 +58,4 @@ public class Person extends BaseEntity implements Messageable {
   public String resolveMessageKey() {
     return getTenantId() + ":" + getId();
   }
-
 }
