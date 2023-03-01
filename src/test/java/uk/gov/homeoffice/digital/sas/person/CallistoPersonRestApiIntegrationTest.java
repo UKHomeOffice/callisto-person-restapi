@@ -106,7 +106,7 @@ class CallistoPersonRestApiIntegrationTest {
     setPersonIdAndTenantId(result);
 
     String payload = getPayloadFromConsumer();
-    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.CREATE);
+    var expectedMessage = new KafkaEventMessage<>(version, person, KafkaAction.CREATE);
 
     assertEqualsEventMessage(payload, expectedMessage);
   }
@@ -129,7 +129,7 @@ class CallistoPersonRestApiIntegrationTest {
     updatePerson(person).andExpect(status().isOk());
 
     String payload = getPayloadFromConsumer();
-    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.UPDATE);
+    var expectedMessage = new KafkaEventMessage<>(version, person, KafkaAction.UPDATE);
 
     assertEqualsEventMessage(payload, expectedMessage);
   }
@@ -150,7 +150,7 @@ class CallistoPersonRestApiIntegrationTest {
         .andExpect(status().isOk());
 
     String payload = getPayloadFromConsumer();
-    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.DELETE);
+    var expectedMessage = new KafkaEventMessage<>(version, person, KafkaAction.DELETE);
 
     assertEqualsEventMessage(payload, expectedMessage);
   }
