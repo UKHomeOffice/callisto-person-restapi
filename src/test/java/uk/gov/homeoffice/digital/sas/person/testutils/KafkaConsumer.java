@@ -16,11 +16,14 @@ public class KafkaConsumer {
   private CountDownLatch latch = new CountDownLatch(1);
   private String payload;
 
+  private String key;
+
   @KafkaListener(topics = "${spring.kafka.template.default-topic}")
   public void receive(ConsumerRecord<String, String> consumerRecord) {
     if (latch != null) {
       latch.countDown();
       if (latch.getCount() == 0) {
+        key = consumerRecord.key();
         payload = consumerRecord.value();
       }
     }

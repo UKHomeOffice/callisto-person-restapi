@@ -56,6 +56,7 @@ class CallistoPersonRestApiIntegrationTest {
   private static final int CONSUMER_TIMEOUT = 10;
   private static final String TENANT_ID = "b7e813a2-bb28-11ec-8422-0242ac120002";
   private static final String TENANT_ID_PARAM = "?tenantId="+TENANT_ID;
+  private static final String MESSAGE_KEY = "%s" + ":" + "%s";
   private static final String PERSON_URL = "/resources/persons";
   private Person person;
 
@@ -106,8 +107,9 @@ class CallistoPersonRestApiIntegrationTest {
     setPersonIdAndTenantId(result);
 
     String payload = getPayloadFromConsumer();
-    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.CREATE);
+    var expectedMessage = new KafkaEventMessage<>(version, person, KafkaAction.CREATE);
 
+    assertThat(kafkaConsumer.getKey()).isEqualTo(String.format(MESSAGE_KEY, TENANT_ID, person.getId()));
     assertEqualsEventMessage(payload, expectedMessage);
   }
 
@@ -121,6 +123,7 @@ class CallistoPersonRestApiIntegrationTest {
         .andExpect(jsonPath("$.items", not(empty())))
         .andReturn();
 
+
     setPersonIdAndTenantId(result);
 
     person.setFteValue(new BigDecimal("0.5000"));
@@ -129,8 +132,9 @@ class CallistoPersonRestApiIntegrationTest {
     updatePerson(person).andExpect(status().isOk());
 
     String payload = getPayloadFromConsumer();
-    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.UPDATE);
+    var expectedMessage = new KafkaEventMessage<>(version, person, KafkaAction.UPDATE);
 
+    assertThat(kafkaConsumer.getKey()).isEqualTo(String.format(MESSAGE_KEY, TENANT_ID, person.getId()));
     assertEqualsEventMessage(payload, expectedMessage);
   }
 
@@ -148,10 +152,10 @@ class CallistoPersonRestApiIntegrationTest {
 
     mvc.perform(delete(PERSON_URL + "/" + person.getId() + TENANT_ID_PARAM))
         .andExpect(status().isOk());
-
     String payload = getPayloadFromConsumer();
-    var expectedMessage = new KafkaEventMessage<>(version, Person.class, person, KafkaAction.DELETE);
+    var expectedMessage = new KafkaEventMessage<>(version, person, KafkaAction.DELETE);
 
+    assertThat(kafkaConsumer.getKey()).isEqualTo(String.format(MESSAGE_KEY, TENANT_ID, person.getId()));
     assertEqualsEventMessage(payload, expectedMessage);
   }
 

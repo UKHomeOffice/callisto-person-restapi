@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <spring.boot.version>${project.parent.version}</spring.boot.version>
         <springdoc.openapi.ui.version>2.0.0</springdoc.openapi.ui.version>
-        <callisto.jpa.rest.version>0.1.4</callisto.jpa.rest.version>
+        <callisto.jpa.rest.version>0.1.7</callisto.jpa.rest.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <postgresql.version>42.5.2</postgresql.version>
@@ -25,7 +25,6 @@
         <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <mockito.version>5.1.1</mockito.version>
         <cucumber.version>7.11.1</cucumber.version>
-        <openpojo.version>0.9.1</openpojo.version>
         <jacoco.version>0.8.8</jacoco.version>
         <sonar.language>java</sonar.language>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -93,12 +92,6 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.openpojo</groupId>
-            <artifactId>openpojo</artifactId>
-            <version>${openpojo.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
