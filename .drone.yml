@@ -19,16 +19,6 @@ steps:
     commands:
       - hadolint Dockerfile
 
-  - name: lint_helm_files
-    image: pelotech/drone-helm3
-    settings:
-      mode: lint
-      chart: ./helm
-      values_files:
-        - ./helm/values/dev-values.yaml
-        - ./helm/values/test-values.yaml
-        - ./helm/values/prod-values.yaml
-
 
 ---
 kind: pipeline
@@ -75,14 +65,14 @@ steps:
       DRONE_TOKEN:
         from_secret: drone_token
     commands:
-      - chmod +x ./pipeline-scripts/check-build-promotion.sh
-      - ./pipeline-scripts/check-build-promotion.sh
+      - chmod +x ./bin/pipeline-scripts/check-build-promotion.sh
+      - ./bin/pipeline-scripts/check-build-promotion.sh
 
 
 ---
 kind: pipeline
 type: kubernetes
-name: callisto-person-restapi-build
+name: build-service
 
 platform:
   os: linux
@@ -179,7 +169,7 @@ steps:
 ---
 kind: pipeline
 type: kubernetes
-name: callisto-person-database-schema
+name: build-database-schema
 
 platform:
   os: linux
@@ -238,8 +228,8 @@ platform:
   arch: amd64
 
 depends_on:
-  - callisto-person-restapi-build
-  - callisto-person-database-schema
+  - build-service
+  - build-database-schema
 
 trigger:
   event:
@@ -251,10 +241,13 @@ steps:
     settings:
       namespace: callisto-dev
       mode: upgrade
-      chart: ./helm
+      add_repos: helm_repo=https://ukhomeoffice.github.io/callisto-helm-charts/
+      chart: helm_repo/callisto-base-service
+      chart_version: 1.0.2
       values:
-        - image.tag=${DRONE_COMMIT_SHA}
-        - branch=${DRONE_SOURCE_BRANCH%%/*}
+        - mainContainerImage.tag=${DRONE_COMMIT_SHA}
+        - databaseMigrationImage.tag=${DRONE_COMMIT_SHA}
+        - ingress.branch=${DRONE_SOURCE_BRANCH%%/*}
       values_files:
         - ./helm/values/dev-values.yaml
       release: callisto-person-restapi-${DRONE_SOURCE_BRANCH%%/*}
@@ -268,15 +261,15 @@ steps:
 ---
 kind: pipeline
 type: kubernetes
-name: callisto-person-restapi-dev-deploy
+name: dev-deploy
 
 platform:
   os: linux
   arch: amd64
 
 depends_on:
-  - callisto-person-restapi-build
-  - callisto-person-database-schema
+  - build-service
+  - build-database-schema
 
 trigger:
   event:
@@ -293,9 +286,12 @@ steps:
     settings:
       namespace: callisto-dev
       mode: upgrade
-      chart: ./helm
+      add_repos: helm_repo=https://ukhomeoffice.github.io/callisto-helm-charts/
+      chart: helm_repo/callisto-base-service
+      chart_version: 1.0.2
       values:
-        - image.tag=${DRONE_COMMIT_SHA}
+        - mainContainerImage.tag=${DRONE_COMMIT_SHA}
+        - databaseMigrationImage.tag=${DRONE_COMMIT_SHA}
       values_files:
         - ./helm/values/dev-values.yaml
       release: callisto-person-restapi
@@ -309,20 +305,21 @@ steps:
 ---
 kind: pipeline
 type: kubernetes
-name: callisto-person-restapi-test-deploy
+name: test-deploy
 
 platform:
   os: linux
   arch: amd64
 
 depends_on:
-  - callisto-person-restapi-dev-deploy
+  - dev-deploy
 
 trigger:
   event:
-    - push
-  exclude:
-    - promote
+    include:
+      - push
+    exclude:
+      - promote
   branch:
     - main
 
@@ -332,9 +329,12 @@ steps:
     settings:
       namespace: callisto-test
       mode: upgrade
-      chart: ./helm
+      add_repos: helm_repo=https://ukhomeoffice.github.io/callisto-helm-charts/
+      chart: helm_repo/callisto-base-service
+      chart_version: 1.0.2
       values:
-        - image.tag=${DRONE_COMMIT_SHA}
+        - mainContainerImage.tag=${DRONE_COMMIT_SHA}
+        - databaseMigrationImage.tag=${DRONE_COMMIT_SHA}
       values_files:
         - ./helm/values/test-values.yaml
       release: callisto-person-restapi
@@ -349,7 +349,7 @@ steps:
 ---
 kind: pipeline
 type: kubernetes
-name: callisto-person-restapi-prod-deploy
+name: prod-deploy
 
 platform:
   os: linux
@@ -370,9 +370,12 @@ steps:
     settings:
       namespace: callisto-prod
       mode: upgrade
-      chart: ./helm
+      add_repos: helm_repo=https://ukhomeoffice.github.io/callisto-helm-charts/
+      chart: helm_repo/callisto-base-service
+      chart_version: 1.0.2
       values:
-        - image.tag=${DRONE_COMMIT_SHA}
+        - mainContainerImage.tag=${DRONE_COMMIT_SHA}
+        - databaseMigrationImage.tag=${DRONE_COMMIT_SHA}
       values_files:
         - ./helm/values/prod-values.yaml
       release: callisto-person-restapi
@@ -392,15 +395,15 @@ trigger:
   status:
     - success
     - failure
-  exclude:
-    event:
+  event:
+    exclude:
       - pull_request
 
 depends_on:
-  - callisto-person-restapi-build
-  - callisto-person-restapi-dev-deploy
-  - callisto-person-restapi-test-deploy
-  - callisto-person-restapi-prod-deploy
+  - build-service
+  - dev-deploy
+  - test-deploy
+  - prod-deploy
 
 slack: &slack
   image: plugins/slack
@@ -455,10 +458,10 @@ trigger:
       - pull_request
 
 depends_on:
-  - callisto-person-restapi-build
-  - callisto-person-restapi-dev-deploy
-  - callisto-person-restapi-test-deploy
-  - callisto-person-restapi-prod-deploy
+  - build-service
+  - dev-deploy
+  - test-deploy
+  - prod-deploy
 
 slack: &slack
   image: plugins/slack
