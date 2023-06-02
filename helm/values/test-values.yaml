@@ -1,67 +1,30 @@
-environment: test
-branch: main
+mainContainerImage:
+  repositoryName: callisto-person-restapi
+  tag: latest # overwritten by deployments
 
 service:
-  port: 3000
+  containerPort: 9090
 
-replicaCount: 1
+databaseMigrationImage:
+  repositoryName: callisto-person-database
+  tag: latest # overwritten by deployments
 
-image:
-  repo: quay.io/ukhomeofficedigital/
-  tag: latest # this value will be overridden by drone.yml
+deploymentAnnotations:
+  downscaler/uptime: Mon-Fri 08:00-20:00 Europe/London
 
-env:
-  database:
-    - name: DATABASE_NAME
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-aurora
-          key: db_name
-    - name: DATABASE_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-aurora
-          key: username
-    - name: DATABASE_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-aurora
-          key: password
-    - name: DATABASE_ENDPOINT
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-aurora
-          key: endpoint
-    - name: DATABASE_PORT
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-aurora
-          key: port
-  kafka:
-    - name: BOOTSTRAP_SERVER
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-bootstrap
-          key: bootstrap_server1
-    - name: AWS_ACCESS_KEY
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-msk
-          key: certificate_authority_access_keys
-    - name: AWS_SECRET_KEY
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-msk
-          key: certificate_authority_secret_keys
-    - name: AWS_CERTIFICATE_AUTHORITY_ARN
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-msk
-          key: certificate_authority_arn
-    - name: PERSON_KEYSTORE_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: callisto-test-person-keystore
-          key: password
-    - name: PERSON_TOPIC
-      value: callisto-person-people
+db:
+  secretKeyRefName: callisto-test-aurora
+  schemaName: person
+
+kafka:
+  defaultTopic: callisto-person-people
+  identity: person-restapi
+  mskSecretKeyRefName: callisto-test-msk
+  bootstrapSecretKeyRefName: callisto-test-bootstrap
+  createTopics:
+    topicNames: |-
+      callisto-person-people
+    permissions: |-
+      --topic person --resource-pattern-type prefixed
+      User:person-restapi-producer     Write       Allow
+      User:person-restapi-producer     Describe    Allow

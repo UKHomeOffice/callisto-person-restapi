@@ -1,5 +1,0 @@
-apiVersion: v2
-name: callisto-person-restapi
-description: A Helm chart for deploying Callisto Person REST API
-type: application
-version: 1.0.0
