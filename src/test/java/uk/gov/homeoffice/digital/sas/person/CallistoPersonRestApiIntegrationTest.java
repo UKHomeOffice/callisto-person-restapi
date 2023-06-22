@@ -38,7 +38,7 @@ import uk.gov.homeoffice.digital.sas.kafka.message.KafkaAction;
 import uk.gov.homeoffice.digital.sas.kafka.message.KafkaEventMessage;
 import uk.gov.homeoffice.digital.sas.person.enums.TermsAndConditions;
 import uk.gov.homeoffice.digital.sas.person.model.Person;
-import uk.gov.homeoffice.digital.sas.person.testutils.KafkaConsumer;
+import uk.gov.homeoffice.digital.sas.person.testutils.TestKafkaConsumer;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
@@ -62,7 +62,7 @@ class CallistoPersonRestApiIntegrationTest {
 
   private final Faker faker = new Faker();
 
-  @Value("${projectVersion}")
+  @Value("${schemaVersion}")
   private String version;
 
   @Autowired
@@ -72,7 +72,7 @@ class CallistoPersonRestApiIntegrationTest {
   private ObjectMapper objectMapper;
 
   @Autowired
-  private KafkaConsumer kafkaConsumer;
+  private TestKafkaConsumer kafkaConsumer;
 
   @BeforeEach
   void setup() {
