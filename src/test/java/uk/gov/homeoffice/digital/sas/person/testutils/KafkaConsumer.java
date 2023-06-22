@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Getter
-public class TestKafkaConsumer {
+public class KafkaConsumer {
 
   private CountDownLatch latch = new CountDownLatch(1);
   private String payload;
