@@ -62,7 +62,7 @@ class CallistoPersonRestApiIntegrationTest {
 
   private final Faker faker = new Faker();
 
-  @Value("${projectVersion}")
+  @Value("${schemaVersion}")
   private String version;
 
   @Autowired

@@ -4,12 +4,12 @@ import java.util.concurrent.CountDownLatch;
 import lombok.Getter;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * Basic Kafka consumer used to validate messages written to topics in integration tests
  */
-@Component
+@Service
 @Getter
 public class KafkaConsumer {
 

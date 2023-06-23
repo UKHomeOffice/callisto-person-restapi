@@ -16,8 +16,9 @@
     <properties>
         <java.version>17</java.version>
         <spring.boot.version>${project.parent.version}</spring.boot.version>
+        <spring.kafka.version>3.0.2</spring.kafka.version>
         <springdoc.openapi.ui.version>2.0.0</springdoc.openapi.ui.version>
-        <callisto.jpa.rest.version>0.1.7</callisto.jpa.rest.version>
+        <callisto.jpa.rest.version>0.1.14</callisto.jpa.rest.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <postgresql.version>42.5.2</postgresql.version>
@@ -107,13 +108,25 @@
         </dependency>
         <dependency>
             <groupId>uk.gov.homeoffice.digital.sas</groupId>
-            <artifactId>kafka-commons</artifactId>
-            <version>${callisto.jpa.rest.version}</version>
+            <artifactId>callisto-kafka-commons</artifactId>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
-            <version>3.0.2</version>
+            <version>${spring.kafka.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate5-jakarta</artifactId>
+            <version>2.15.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>${spring.kafka.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
