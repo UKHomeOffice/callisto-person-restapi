@@ -362,7 +362,8 @@ trigger:
   event:
     - promote
   target:
-    - production
+    exclude:
+      - production
 
 steps:
   - name: deploy_to_prod
