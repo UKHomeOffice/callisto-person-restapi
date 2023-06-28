@@ -13,6 +13,18 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>callisto-person-restapi</name>
     <description>Callisto Person service backend rest api project</description>
+
+    <repositories>
+        <repository>
+            <id>github-packages</id>
+            <name>Callisto github packages</name>
+            <url>https://maven.pkg.github.com/UKHomeOffice/*</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <properties>
         <java.version>17</java.version>
         <spring.boot.version>${project.parent.version}</spring.boot.version>

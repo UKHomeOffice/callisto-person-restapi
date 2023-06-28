@@ -3,6 +3,7 @@
 Callisto Person REST API is a part of Callisto project.
 The best way to run the service is to leverage the [callisto-localdev solution](https://github.com/UKHomeOffice/callisto-localdev).
 
+
 ## Running as part of the LocalDev environment
 
 1. Clone LocalDev repository from https://github.com/UKHomeOffice/callisto-localdev and run it locally as described in [Scenario 1](https://github.com/UKHomeOffice/callisto-localdev#scenario-1-running-callisto-without-need-to-edit-code-base-eg-demo-purposes).
@@ -38,6 +39,7 @@ For more info see:
 [https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry)
 
 Then run the following to build the project
+
 
 ## Debugging
 
